@@ -1,0 +1,22 @@
+[
+    {
+      "id": 1,
+      "name": "Restaurant A",
+      "cusine_type": "Italian",
+      "location": "Finch West",
+      "description": "This is a description of Restaurant A",
+      "tags": ["tag1", "tag2", "tag3"],
+      "rating": 4.5,
+      "image": ""
+    },
+    {
+      "id": 2,
+      "name": "Restaurant B",
+      "cusine_type": "Indian",
+      "location": "Missisaga",
+      "description": "This is a description of Restaurant B",
+      "tags": ["tag1", "tag2", "tag3"],
+      "rating": 4.0,
+      "image": ""
+    }
+]
