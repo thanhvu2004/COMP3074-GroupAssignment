@@ -12,6 +12,7 @@ The following packages are required to run this project:
 - `@react-navigation/native`: ^7.0.4
 - `@react-navigation/bottom-tabs`: ^7.0.7
 - `@react-navigation/stack`
+- `@react-native-async-storage/async-storage`
 - `expo-status-bar`: ~2.0.0
 - `react-native-safe-area-context`: ^4.14.0
 - `react-native-screens`: ^4.3.0

@@ -1,14 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const SETTINGS_KEY = "settings";
 
 export default function RestaurantCard({ restaurant }) {
+  const [isRatingEnabled, setIsRatingEnabled] = useState(false);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const settings = await AsyncStorage.getItem(SETTINGS_KEY);
+        if (settings !== null) {
+          const parsedSettings = JSON.parse(settings);
+          setIsRatingEnabled(parsedSettings.isRatingANEnabled);
+        }
+      } catch (error) {
+        console.error("Error loading settings:", error);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
+  const renderRating = () => {
+    if (isRatingEnabled) {
+      return <Text style={styles.rating}>Rating: {restaurant.rating}</Text>;
+    } else {
+      const stars = "★".repeat(Math.round(restaurant.rating));
+      return <Text style={styles.rating}>{stars}</Text>;
+    }
+  };
+
   return (
     <View style={styles.card}>
       <Image source={{ uri: restaurant.image }} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.name}>{restaurant.name}</Text>
         <Text style={styles.location}>{restaurant.location}</Text>
-        <Text style={styles.rating}>Rating: {restaurant.rating}</Text>
+        {renderRating()}
       </View>
     </View>
   );

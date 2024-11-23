@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Text,
+  View,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import RestaurantCard from "./RestaurantCard";
 import restaurantData from "../data/restaurant.json";
