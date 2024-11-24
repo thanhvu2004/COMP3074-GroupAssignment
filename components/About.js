@@ -8,7 +8,7 @@ export default function About() {
         This app is created by Team 10 Mobile App Development, George Brown College
       </Text>
       <Text>Members:</Text>
-      <Text>1. JosePhine Snyder</Text>
+      <Text>1. Josephine Snyder</Text>
       <Text>2. Conor Le</Text>
       <Text>3. Ferdos Nurhusien</Text>
       <Text>4. Abinet Aniyo</Text>
