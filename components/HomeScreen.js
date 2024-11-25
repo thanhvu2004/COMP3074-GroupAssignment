@@ -18,18 +18,23 @@ export default function HomeScreen() {
     setRestaurants(restaurantData);
   }, []);
 
+  // Passed to AddRestaurant screen
+  const addRestaurant = (restaurant) => {
+    restaurantData.push(restaurant)
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.h1}>Recent Restaurant</Text>
       <FlatList
         data={restaurants}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <RestaurantCard restaurant={item} />}
+        renderItem={({ item }) => <RestaurantCard restaurant={item} navigation={navigation}/>}
       />
       {/* Floating button to navigate to Add Restaurant */}
       <TouchableOpacity
         style={styles.floatingButton}
-        onPress={() => navigation.navigate("AddRestaurant")}
+        onPress={() => navigation.navigate("AddRestaurant", {addRestaurant: addRestaurant})}
       > 
         <Text style={styles.floatingButtonText}>+</Text>
       </TouchableOpacity>
