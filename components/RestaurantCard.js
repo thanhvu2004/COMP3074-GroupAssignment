@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SETTINGS_KEY = "settings";
 
-export default function RestaurantCard({ restaurant }) {
+export default function RestaurantCard({ restaurant, navigation }) {
   const [isRatingEnabled, setIsRatingEnabled] = useState(false);
 
   useEffect(() => {
@@ -33,14 +33,17 @@ export default function RestaurantCard({ restaurant }) {
   };
 
   return (
-    <View style={styles.card}>
-      <Image source={{ uri: restaurant.image }} style={styles.image} />
-      <View style={styles.info}>
-        <Text style={styles.name}>{restaurant.name}</Text>
-        <Text style={styles.location}>{restaurant.location}</Text>
-        {renderRating()}
+    <TouchableOpacity onPress={() => 
+      {navigation.navigate("RestaurantDetails", {restaurant: restaurant})}}>
+      <View style={styles.card}>
+        <Image source={{ uri: restaurant.image }} style={styles.image} />
+        <View style={styles.info}>
+          <Text style={styles.name}>{restaurant.name}</Text>
+          <Text style={styles.location}>{restaurant.location}</Text>
+          {renderRating()}
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

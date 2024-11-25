@@ -8,6 +8,7 @@ import SettingScreen from "./components/SettingScreen";
 import SplashScreen from "./components/SplashScreen";
 import AddRestaurant from "./components/AddRestaurant";
 import About from "./components/About";
+import RestaurantDetails from "./components/RestaurantDetails";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -46,6 +47,11 @@ export default function App() {
           name="About"
           component={About}
           options={{ title: "About" }}
+        />
+        <Stack.Screen
+          name="RestaurantDetails"
+          component={RestaurantDetails}
+          options={{ title: "Restaurant Details" }}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -29,7 +29,7 @@ export default function HomeScreen() {
       <FlatList
         data={restaurants}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <RestaurantCard restaurant={item} />}
+        renderItem={({ item }) => <RestaurantCard restaurant={item} navigation={navigation}/>}
       />
       {/* Floating button to navigate to Add Restaurant */}
       <TouchableOpacity
