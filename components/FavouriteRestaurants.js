@@ -4,7 +4,7 @@ import restaurantData from "../data/restaurant.json";
 import RestaurantCard from "./RestaurantCard";
 
 
-export default function FavouriteRestaurant() {
+export default function FavouriteRestaurant({ navigation }) {
   const [restaurants, setRestaurants] = useState([]);
 
   useEffect(() => {
@@ -15,11 +15,11 @@ export default function FavouriteRestaurant() {
   // TODO - include 'favorite' boolean on each restaurant to only show ones selected as favorites 
   return (
     <View style={styles.container}>
-      <Text style={styles.h1}>Favourite Restaurants</Text>
+      <Text style={styles.h1}>Favorite Restaurants</Text>
       <FlatList
         data={restaurants.sort((a, b) => {b.rating-a.rating})}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <RestaurantCard restaurant={item} />}
+        renderItem={({ item }) => <RestaurantCard restaurant={item} navigation={navigation}/>}
       />
     </View>
   );
