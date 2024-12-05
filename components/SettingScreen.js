@@ -15,7 +15,7 @@ export default function SettingScreen() {
         const settings = await AsyncStorage.getItem(SETTINGS_KEY);
         if (settings !== null) {
           const parsedSettings = JSON.parse(settings);
-          setIsRatingEnabled(parsedSettings.isRatingANEnabled);
+          setIsRatingEnabled(parsedSettings.isRatingEnabled);
         }
       } catch (error) {
         console.error("Error loading settings:", error);
@@ -25,16 +25,24 @@ export default function SettingScreen() {
     loadSettings();
   }, []);
 
-  const toggleSwitch = async () => {
-    const newValue = !isRatingEnabled;
-    setIsRatingEnabled(newValue);
+  useEffect(() => {
+    const saveSettings = async () => {
+      try {
+        const updatedSettings = { isRatingEnabled };
+        await AsyncStorage.setItem(
+          SETTINGS_KEY,
+          JSON.stringify(updatedSettings)
+        );
+      } catch (error) {
+        console.error("Error saving settings:", error);
+      }
+    };
 
-    try {
-      const updatedSettings = { isRatingANEnabled: newValue };
-      await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(updatedSettings));
-    } catch (error) {
-      console.error("Error saving settings:", error);
-    }
+    saveSettings();
+  }, [isRatingEnabled]);
+
+  const toggleSwitch = () => {
+    setIsRatingEnabled((previousState) => !previousState);
   };
 
   return (
@@ -44,7 +52,7 @@ export default function SettingScreen() {
         <Switch onValueChange={toggleSwitch} value={isRatingEnabled} />
       </View>
       <Text style={styles.settingDisclaimer}>
-        The change will take effect the next time you start the app.
+        The change will take effect immediately.
       </Text>
       <TouchableOpacity
         style={styles.settingItem}

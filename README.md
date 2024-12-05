@@ -16,6 +16,7 @@ The following packages are required to run this project:
 - `expo-status-bar`: ~2.0.0
 - `react-native-safe-area-context`: ^4.14.0
 - `react-native-screens`: ^4.3.0
+- `react-native-paper`
 
 ## Scripts
 

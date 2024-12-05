@@ -3,43 +3,77 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SETTINGS_KEY = "settings";
+const DEFAULT_IMAGE = require("../assets/restaurant.jpg");
 
-export default function RestaurantCard({ restaurant, navigation }) {
-  const [isRatingEnabled, setIsRatingEnabled] = useState(false);
+export default function RestaurantCard({
+  restaurant,
+  navigation,
+  isRatingEnabled,
+}) {
+  const [currentRestaurant, setCurrentRestaurant] = useState(restaurant);
 
   useEffect(() => {
-    const loadSettings = async () => {
+    const loadRestaurant = async () => {
       try {
-        const settings = await AsyncStorage.getItem(SETTINGS_KEY);
-        if (settings !== null) {
-          const parsedSettings = JSON.parse(settings);
-          setIsRatingEnabled(parsedSettings.isRatingANEnabled);
+        const storedRestaurants = await AsyncStorage.getItem("restaurants");
+        if (storedRestaurants) {
+          const restaurants = JSON.parse(storedRestaurants);
+          const updatedRestaurant = restaurants.find(
+            (r) => r.name === restaurant.name
+          );
+          if (updatedRestaurant) {
+            setCurrentRestaurant(updatedRestaurant);
+          }
         }
       } catch (error) {
-        console.error("Error loading settings:", error);
+        console.error("Error loading restaurant:", error);
       }
     };
 
-    loadSettings();
-  }, []);
+    loadRestaurant();
+  }, [restaurant, isRatingEnabled]);
 
   const renderRating = () => {
-    if (isRatingEnabled) {
-      return <Text style={styles.rating}>Rating: {restaurant.rating}</Text>;
+    if (currentRestaurant.rating === "") {
+      return (
+        <Text style={styles.rating}>
+          This restaurant doesn't have a rating yet
+        </Text>
+      );
+    } else if (isRatingEnabled) {
+      return (
+        <Text style={styles.rating}>Rating: {currentRestaurant.rating}</Text>
+      );
     } else {
-      const stars = "★".repeat(Math.round(restaurant.rating));
+      const stars = "★".repeat(Math.round(currentRestaurant.rating));
       return <Text style={styles.rating}>{stars}</Text>;
     }
   };
 
   return (
-    <TouchableOpacity onPress={() => 
-      {navigation.navigate("RestaurantDetails", {restaurant: restaurant})}}>
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("RestaurantDetails", {
+          restaurant: currentRestaurant,
+        })
+      }
+    >
       <View style={styles.card}>
-        <Image source={{ uri: restaurant.image }} style={styles.image} />
+        <Image
+          source={
+            currentRestaurant.image
+              ? { uri: currentRestaurant.image }
+              : DEFAULT_IMAGE
+          }
+          style={styles.image}
+        />
         <View style={styles.info}>
-          <Text style={styles.name}>{restaurant.name}</Text>
-          <Text style={styles.location}>{restaurant.location}</Text>
+          <Text style={styles.name}>{currentRestaurant.name}</Text>
+          <Text style={styles.location}>
+            {currentRestaurant.address.street}, {currentRestaurant.address.city}
+            , {currentRestaurant.address.state}, {currentRestaurant.address.zip}
+            , {currentRestaurant.address.country}
+          </Text>
           {renderRating()}
         </View>
       </View>
@@ -50,24 +84,19 @@ export default function RestaurantCard({ restaurant, navigation }) {
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
-    marginBottom: 10,
-    padding: 10,
+    marginBottom: 20,
     backgroundColor: "#fff",
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 2,
+    borderRadius: 10,
+    overflow: "hidden",
+    elevation: 3,
   },
   image: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
+    width: 100,
+    height: 100,
   },
   info: {
-    marginLeft: 10,
-    justifyContent: "center",
+    flex: 1,
+    padding: 10,
   },
   name: {
     fontSize: 18,
@@ -75,10 +104,11 @@ const styles = StyleSheet.create({
   },
   location: {
     fontSize: 14,
-    color: "#666",
+    color: "gray",
+    marginVertical: 5,
   },
   rating: {
     fontSize: 14,
-    color: "#666",
+    color: "gold",
   },
 });

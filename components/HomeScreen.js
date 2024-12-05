@@ -6,36 +6,76 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import RestaurantCard from "./RestaurantCard";
-import restaurantData from "../data/restaurant.json";
+
+const SETTINGS_KEY = "settings";
 
 export default function HomeScreen() {
   const [restaurants, setRestaurants] = useState([]);
+  const [isRatingEnabled, setIsRatingEnabled] = useState(false);
   const navigation = useNavigation();
 
+  const fetchRestaurants = async () => {
+    try {
+      const storedRestaurants = await AsyncStorage.getItem("restaurants");
+      if (storedRestaurants) {
+        setRestaurants(JSON.parse(storedRestaurants));
+      }
+    } catch (error) {
+      console.error("Failed to load restaurants from AsyncStorage", error);
+    }
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const settings = await AsyncStorage.getItem(SETTINGS_KEY);
+      if (settings !== null) {
+        const parsedSettings = JSON.parse(settings);
+        setIsRatingEnabled(parsedSettings.isRatingEnabled);
+      }
+    } catch (error) {
+      console.error("Failed to load settings from AsyncStorage", error);
+    }
+  };
+
   useEffect(() => {
-    setRestaurants(restaurantData);
+    fetchRestaurants();
+    fetchSettings();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchRestaurants();
+      fetchSettings();
+    }, [])
+  );
 
   // Passed to AddRestaurant screen
   const addRestaurant = (restaurant) => {
-    restaurantData.push(restaurant)
-  }
+    setRestaurants((prevRestaurants) => [...prevRestaurants, restaurant]);
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.h1}>Recent Restaurant</Text>
+      <Text style={styles.h1}>Recent Restaurants</Text>
       <FlatList
         data={restaurants}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <RestaurantCard restaurant={item} navigation={navigation}/>}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <RestaurantCard
+            restaurant={item}
+            navigation={navigation}
+            isRatingEnabled={isRatingEnabled}
+          />
+        )}
       />
       {/* Floating button to navigate to Add Restaurant */}
       <TouchableOpacity
         style={styles.floatingButton}
-        onPress={() => navigation.navigate("AddRestaurant", {addRestaurant: addRestaurant})}
-      > 
+        onPress={() => navigation.navigate("AddRestaurant", { addRestaurant })}
+      >
         <Text style={styles.floatingButtonText}>+</Text>
       </TouchableOpacity>
     </View>
@@ -60,13 +100,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     right: 20,
     bottom: 20,
-    backgroundColor: "#fff",
+    backgroundColor: "blue",
     borderRadius: 30,
     elevation: 8,
   },
   floatingButtonText: {
-    color: "black",
+    color: "white",
     fontSize: 24,
-    fontWeight: "bold",
   },
 });
