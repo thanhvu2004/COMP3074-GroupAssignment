@@ -18,6 +18,7 @@ The following packages are required to run this project:
 - `react-native-screens`: ^4.3.0
 - `react-native-paper`
 - `react-native-dotenv`
+- `react-native-maps react-native-geocoding`
 
 ## Scripts
 
