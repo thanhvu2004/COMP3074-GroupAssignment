@@ -6,19 +6,26 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RadioButton } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
+import MapView, { Marker } from "react-native-maps";
+import Geocoder from "react-native-geocoding";
+import { GOOGLE_MAPS_API_KEY } from "@env";
 
 const SETTINGS_KEY = "settings";
 const DEFAULT_IMAGE = require("../assets/restaurant.jpg");
+
+Geocoder.init(GOOGLE_MAPS_API_KEY);
 
 export default function RestaurantDetails({ route, navigation }) {
   const { restaurant } = route.params;
   const [isRatingEnabled, setIsRatingEnabled] = useState(false);
   const [selectedRating, setSelectedRating] = useState(restaurant.rating || "");
   const [currentRestaurant, setCurrentRestaurant] = useState(restaurant);
+  const [region, setRegion] = useState(null);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -49,6 +56,18 @@ export default function RestaurantDetails({ route, navigation }) {
             if (updatedRestaurant) {
               setCurrentRestaurant(updatedRestaurant);
               setSelectedRating(updatedRestaurant.rating);
+              const fullAddress = `${updatedRestaurant.address.street}, ${updatedRestaurant.address.city}, ${updatedRestaurant.address.state}, ${updatedRestaurant.address.zip}, ${updatedRestaurant.address.country}`;
+              Geocoder.from(fullAddress)
+                .then((json) => {
+                  const location = json.results[0].geometry.location;
+                  setRegion({
+                    latitude: location.lat,
+                    longitude: location.lng,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  });
+                })
+                .catch((error) => console.warn(error));
             }
           }
         } catch (error) {
@@ -142,7 +161,7 @@ export default function RestaurantDetails({ route, navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.name}>{currentRestaurant.name}</Text>
       <Text style={styles.paragraph_text}>
         {currentRestaurant.cuisine_type}
@@ -165,10 +184,22 @@ export default function RestaurantDetails({ route, navigation }) {
       {currentRestaurant.phones.map((phone, index) => (
         <Text key={index}>{phone}</Text>
       ))}
-      <Text style={styles.subtle_text}> #
+      <Text style={styles.subtle_text}>
         {currentRestaurant.tags.join(", ")}
       </Text>
       {renderRating()}
+      {region && (
+        <MapView style={styles.map} region={region}>
+          <Marker
+            coordinate={{
+              latitude: region.latitude,
+              longitude: region.longitude,
+            }}
+            title={currentRestaurant.name}
+            description={currentRestaurant.address.street}
+          />
+        </MapView>
+      )}
       <View style={styles.ratingContainer}>
         <Text style={styles.ratingLabel}>Select Rating:</Text>
         <View style={styles.radioGroup}>
@@ -195,7 +226,7 @@ export default function RestaurantDetails({ route, navigation }) {
       >
         <Text style={styles.buttonText}>Delete Restaurant</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -227,6 +258,11 @@ const styles = StyleSheet.create({
   rating: {
     fontSize: 16,
     color: "gold",
+  },
+  map: {
+    width: "100%",
+    height: 200,
+    marginBottom: 20,
   },
   ratingContainer: {
     marginTop: 20,
