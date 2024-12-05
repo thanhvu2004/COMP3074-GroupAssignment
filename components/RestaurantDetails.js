@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, Image, StyleSheet } from "react-native";
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RadioButton } from "react-native-paper";
+import { useFocusEffect } from "@react-navigation/native";
 
 const SETTINGS_KEY = "settings";
 const DEFAULT_IMAGE = require("../assets/restaurant.jpg");
 
-export default function RestaurantDetails({ route }) {
+export default function RestaurantDetails({ route, navigation }) {
   const { restaurant } = route.params;
   const [isRatingEnabled, setIsRatingEnabled] = useState(false);
   const [selectedRating, setSelectedRating] = useState(restaurant.rating || "");
@@ -25,27 +33,32 @@ export default function RestaurantDetails({ route }) {
       }
     };
 
-    const loadRestaurant = async () => {
-      try {
-        const storedRestaurants = await AsyncStorage.getItem("restaurants");
-        if (storedRestaurants) {
-          const restaurants = JSON.parse(storedRestaurants);
-          const updatedRestaurant = restaurants.find(
-            (r) => r.name === restaurant.name
-          );
-          if (updatedRestaurant) {
-            setCurrentRestaurant(updatedRestaurant);
-            setSelectedRating(updatedRestaurant.rating);
-          }
-        }
-      } catch (error) {
-        console.error("Error loading restaurant:", error);
-      }
-    };
-
     loadSettings();
-    loadRestaurant();
-  }, [restaurant.name]);
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadRestaurant = async () => {
+        try {
+          const storedRestaurants = await AsyncStorage.getItem("restaurants");
+          if (storedRestaurants) {
+            const restaurants = JSON.parse(storedRestaurants);
+            const updatedRestaurant = restaurants.find(
+              (r) => r.name === restaurant.name
+            );
+            if (updatedRestaurant) {
+              setCurrentRestaurant(updatedRestaurant);
+              setSelectedRating(updatedRestaurant.rating);
+            }
+          }
+        } catch (error) {
+          console.error("Error loading restaurant:", error);
+        }
+      };
+
+      loadRestaurant();
+    }, [restaurant.name])
+  );
 
   const renderRating = () => {
     if (currentRestaurant.rating === "") {
@@ -87,6 +100,47 @@ export default function RestaurantDetails({ route }) {
     }
   };
 
+  const handleEditRestaurant = () => {
+    navigation.navigate("EditRestaurant", { restaurant: currentRestaurant });
+  };
+
+  const handleDeleteRestaurant = async () => {
+    Alert.alert(
+      "Delete Restaurant",
+      "Are you sure you want to delete this restaurant?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const storedRestaurants = await AsyncStorage.getItem(
+                "restaurants"
+              );
+              const restaurants = storedRestaurants
+                ? JSON.parse(storedRestaurants)
+                : [];
+              const updatedRestaurants = restaurants.filter(
+                (r) => r.name !== restaurant.name
+              );
+              await AsyncStorage.setItem(
+                "restaurants",
+                JSON.stringify(updatedRestaurants)
+              );
+              navigation.goBack();
+            } catch (error) {
+              console.error("Error deleting restaurant:", error);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.name}>{currentRestaurant.name}</Text>
@@ -107,7 +161,11 @@ export default function RestaurantDetails({ route }) {
         {currentRestaurant.address.state}, {currentRestaurant.address.zip},{" "}
         {currentRestaurant.address.country}
       </Text>
-      <Text style={styles.subtle_text}>
+      <Text style={styles.paragraph_text}>Phones:</Text>
+      {currentRestaurant.phones.map((phone, index) => (
+        <Text key={index}>{phone}</Text>
+      ))}
+      <Text style={styles.subtle_text}> #
         {currentRestaurant.tags.join(", ")}
       </Text>
       {renderRating()}
@@ -128,6 +186,15 @@ export default function RestaurantDetails({ route }) {
           ))}
         </View>
       </View>
+      <TouchableOpacity style={styles.button} onPress={handleEditRestaurant}>
+        <Text style={styles.buttonText}>Edit Restaurant</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, styles.deleteButton]}
+        onPress={handleDeleteRestaurant}
+      >
+        <Text style={styles.buttonText}>Delete Restaurant</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -150,6 +217,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "gray",
     marginBottom: 10,
+    marginTop: 10,
   },
   image: {
     width: "100%",
@@ -179,5 +247,20 @@ const styles = StyleSheet.create({
     borderColor: "gray",
     borderRadius: 5,
     padding: 5,
+  },
+  button: {
+    marginTop: 20,
+    backgroundColor: "blue",
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 5,
+  },
+  deleteButton: {
+    backgroundColor: "red",
+    marginTop: 10,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
   },
 });
