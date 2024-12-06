@@ -70,7 +70,6 @@ export default function AddRestaurant({ route, navigation }) {
 
       // Add the new restaurant to the list
       restaurants.push(newRestaurant);
-      console.log("existingRestaurants", restaurants);
       // Save the updated list back to AsyncStorage
       await AsyncStorage.setItem("restaurants", JSON.stringify(restaurants));
 

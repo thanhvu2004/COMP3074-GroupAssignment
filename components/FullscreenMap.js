@@ -4,6 +4,7 @@ import MapView, { Marker } from "react-native-maps";
 
 export default function FullscreenMap({ route }) {
   const { region, restaurant } = route.params;
+  console.log(region);
 
   return (
     <View style={styles.container}>

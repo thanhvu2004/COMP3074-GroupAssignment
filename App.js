@@ -2,6 +2,8 @@ import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
+import { useEffect } from "react";
+import { populateRestaurants } from "./PopulateTestData";
 import HomeScreen from "./components/HomeScreen";
 import FavouriteRestaurant from "./components/FavouriteRestaurants";
 import SettingScreen from "./components/SettingScreen";
@@ -26,6 +28,9 @@ function MainTabs() {
 }
 
 export default function App() {
+  useEffect(() => { // FOR TESTING PURPOSES ONLY - POPULATE TEST DATA
+    populateRestaurants();
+  }, []);
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Splash">
