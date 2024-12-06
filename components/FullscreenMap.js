@@ -8,7 +8,11 @@ export default function FullscreenMap({ route }) {
 
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} region={region}>
+      <MapView
+        style={styles.map}
+        initialRegion={region}
+        key={region.latitude + region.longitude}
+      >
         <Marker
           coordinate={{
             latitude: region.latitude,
