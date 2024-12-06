@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Switch,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -23,6 +24,7 @@ export default function EditRestaurant({ route, navigation }) {
   const [phones, setPhones] = useState(restaurant.phones.join(", "));
   const [description, setDescription] = useState(restaurant.description);
   const [tags, setTags] = useState(restaurant.tags.join(", "));
+  const [favorite, setFavorite] = useState(restaurant.favorite);
   const [image] = useState(restaurant.image);
 
   const handleUpdateRestaurant = async () => {
@@ -167,6 +169,15 @@ export default function EditRestaurant({ route, navigation }) {
             placeholder="TAGs (comma separated)"
             value={tags}
             onChangeText={setTags}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Favorite:</Text>
+          <Switch
+            style={styles.input}
+            isOn={favorite}
+            value={favorite}
+            onValueChange={setFavorite}
           />
         </View>
         <TouchableOpacity

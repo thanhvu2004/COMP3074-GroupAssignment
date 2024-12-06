@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Switch,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -22,6 +23,7 @@ export default function AddRestaurant({ route, navigation }) {
   const [phones, setPhones] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState("");
+  const [favorite, setFavorite] = useState(false);
 
   const handleAddRestaurant = async () => {
     if (
@@ -58,7 +60,7 @@ export default function AddRestaurant({ route, navigation }) {
         tags: tags.split(",").map((tag) => tag.trim()), // Split and trim tags
         image: null,
         rating: "", // Set rating to blank when first created
-        favourite: false, // Set favourite to false when first created
+        favorite: favorite,
       };
 
       // Retrieve existing restaurants from AsyncStorage
@@ -168,6 +170,15 @@ export default function AddRestaurant({ route, navigation }) {
             placeholder="TAGs (comma separated)"
             value={tags}
             onChangeText={setTags}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Favorite:</Text>
+          <Switch
+            style={styles.input}
+            isOn={favorite}
+            value={favorite}
+            onValueChange={setFavorite}
           />
         </View>
         <TouchableOpacity style={styles.button} onPress={handleAddRestaurant}>

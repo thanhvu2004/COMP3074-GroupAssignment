@@ -1,23 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { Text, View, FlatList, StyleSheet } from "react-native";
-import restaurantData from "../data/restaurant.json";
 import RestaurantCard from "./RestaurantCard";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SearchBar } from "react-native-screens";
 
 
 export default function FavouriteRestaurant({ navigation }) {
   const [restaurants, setRestaurants] = useState([]);
 
   useEffect(() => {
-    setRestaurants(restaurantData);
+    fetchRestaurants();
   }, []);
+
+  const fetchRestaurants = async () => {
+    try {
+      const storedRestaurants = await AsyncStorage.getItem("restaurants");
+      if (storedRestaurants) {
+        const restaurants = JSON.parse(storedRestaurants)
+        // TODO - filter only favorite restaurants
+        setRestaurants(restaurants);
+      }
+    } catch (error) {
+      console.error("Failed to load restaurants from AsyncStorage", error);
+    }
+  };
   
   // Currently displays restaurants ordered by rating
-  // TODO - include 'favorite' boolean on each restaurant to only show ones selected as favorites 
   return (
     <View style={styles.container}>
       <Text style={styles.h1}>Favorite Restaurants</Text>
+      <SearchBar />
       <FlatList
-        data={restaurants.sort((a, b) => {b.rating-a.rating})}
+        data={restaurants}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <RestaurantCard restaurant={item} navigation={navigation}/>}
       />
