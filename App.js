@@ -10,6 +10,7 @@ import AddRestaurant from "./components/AddRestaurant";
 import About from "./components/About";
 import RestaurantDetails from "./components/RestaurantDetails";
 import EditRestaurant from "./components/EditRestaurant";
+import FullscreenMap  from "./components/FullscreenMap";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -58,6 +59,11 @@ export default function App() {
           name="EditRestaurant"
           component={EditRestaurant}
           options={{ title: "Edit Restaurant" }}
+        />
+        <Stack.Screen
+          name="FullscreenMap"
+          component={FullscreenMap}
+          options={{ title: "Map" }}
         />
       </Stack.Navigator>
     </NavigationContainer>

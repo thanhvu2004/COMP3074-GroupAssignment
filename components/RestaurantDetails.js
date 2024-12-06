@@ -27,7 +27,7 @@ export default function RestaurantDetails({ route, navigation }) {
   const [currentRestaurant, setCurrentRestaurant] = useState(restaurant);
   const [region, setRegion] = useState(null);
 
-  useEffect(() => {
+  useEffect(() => { // Load the settings from AsyncStorage once the component mounts
     const loadSettings = async () => {
       try {
         const settings = await AsyncStorage.getItem(SETTINGS_KEY);
@@ -43,7 +43,7 @@ export default function RestaurantDetails({ route, navigation }) {
     loadSettings();
   }, []);
 
-  useFocusEffect(
+  useFocusEffect( // Load the restaurant details from AsyncStorage when the screen is focused
     React.useCallback(() => {
       const loadRestaurant = async () => {
         try {
@@ -54,10 +54,10 @@ export default function RestaurantDetails({ route, navigation }) {
               (r) => r.name === restaurant.name
             );
             if (updatedRestaurant) {
-              setCurrentRestaurant(updatedRestaurant);
-              setSelectedRating(updatedRestaurant.rating);
+              setCurrentRestaurant(updatedRestaurant); // Update the current restaurant state
+              setSelectedRating(updatedRestaurant.rating); // Update the selected rating state
               const fullAddress = `${updatedRestaurant.address.street}, ${updatedRestaurant.address.city}, ${updatedRestaurant.address.state}, ${updatedRestaurant.address.zip}, ${updatedRestaurant.address.country}`;
-              Geocoder.from(fullAddress)
+              Geocoder.from(fullAddress) // Get the latitude and longitude of the restaurant based on its address
                 .then((json) => {
                   const location = json.results[0].geometry.location;
                   setRegion({
@@ -79,7 +79,7 @@ export default function RestaurantDetails({ route, navigation }) {
     }, [restaurant.name])
   );
 
-  const renderRating = () => {
+  const renderRating = () => { // Render the restaurant rating
     if (currentRestaurant.rating === "") {
       return (
         <Text style={styles.rating}>
@@ -96,7 +96,7 @@ export default function RestaurantDetails({ route, navigation }) {
     }
   };
 
-  const handleRatingChange = async (newRating) => {
+  const handleRatingChange = async (newRating) => { // Handle the rating change
     setSelectedRating(newRating);
     const updatedRestaurant = { ...currentRestaurant, rating: newRating };
     setCurrentRestaurant(updatedRestaurant);
@@ -119,11 +119,11 @@ export default function RestaurantDetails({ route, navigation }) {
     }
   };
 
-  const handleEditRestaurant = () => {
+  const handleEditRestaurant = () => { // Navigate to the EditRestaurant screen
     navigation.navigate("EditRestaurant", { restaurant: currentRestaurant });
   };
 
-  const handleDeleteRestaurant = async () => {
+  const handleDeleteRestaurant = async () => { // Delete the restaurant
     Alert.alert(
       "Delete Restaurant",
       "Are you sure you want to delete this restaurant?",
@@ -160,6 +160,22 @@ export default function RestaurantDetails({ route, navigation }) {
     );
   };
 
+  const handleViewFullscreenMap = () => {
+    navigation.navigate("FullscreenMap", {
+      region,
+      restaurant: currentRestaurant,
+    });
+  };
+
+  const formatPhoneNumber = (phoneNumber) => {
+    const cleaned = ("" + phoneNumber).replace(/\D/g, "");
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return `(${match[1]}) ${match[2]}-${match[3]}`;
+    }
+    return phoneNumber;
+  };
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.name}>{currentRestaurant.name}</Text>
@@ -177,28 +193,37 @@ export default function RestaurantDetails({ route, navigation }) {
       <Text style={styles.paragraph_text}>{currentRestaurant.description}</Text>
       <Text style={styles.paragraph_text}>
         {currentRestaurant.address.street}, {currentRestaurant.address.city},{" "}
-        {currentRestaurant.address.state}, {currentRestaurant.address.zip},{" "}
-        {currentRestaurant.address.country}
+        {currentRestaurant.address.state}, {currentRestaurant.address.country}
       </Text>
+      <Text style={styles.paragraph_text}>{currentRestaurant.address.zip}</Text>
       <Text style={styles.paragraph_text}>Phones:</Text>
       {currentRestaurant.phones.map((phone, index) => (
-        <Text key={index}>{phone}</Text>
+        <Text key={index}>{formatPhoneNumber(phone)}</Text>
       ))}
       <Text style={styles.subtle_text}>
         {currentRestaurant.tags.join(", ")}
       </Text>
       {renderRating()}
       {region && (
-        <MapView style={styles.map} region={region}>
-          <Marker
-            coordinate={{
-              latitude: region.latitude,
-              longitude: region.longitude,
-            }}
-            title={currentRestaurant.name}
-            description={currentRestaurant.address.street}
-          />
-        </MapView>
+        // Render the map if the region is available
+        <View> 
+          <MapView style={styles.map} region={region}>
+            <Marker
+              coordinate={{
+                latitude: region.latitude,
+                longitude: region.longitude,
+              }}
+              title={currentRestaurant.name}
+              description={currentRestaurant.address.street}
+            />
+          </MapView>
+          <TouchableOpacity
+            style={styles.fullscreenButton}
+            onPress={handleViewFullscreenMap}
+          >
+            <Text style={styles.buttonText}>View Fullscreen Map</Text>
+          </TouchableOpacity>
+        </View>
       )}
       <View style={styles.ratingContainer}>
         <Text style={styles.ratingLabel}>Select Rating:</Text>
@@ -262,6 +287,13 @@ const styles = StyleSheet.create({
   map: {
     width: "100%",
     height: 200,
+    marginBottom: 20,
+  },
+  fullscreenButton: {
+    backgroundColor: "blue",
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 5,
     marginBottom: 20,
   },
   ratingContainer: {
