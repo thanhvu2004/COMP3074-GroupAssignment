@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, FlatList, StyleSheet } from "react-native";
+import { Text, View, FlatList, StyleSheet, TextInput } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import RestaurantCard from "./RestaurantCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { SearchBar } from "react-native-screens";
 
 const SETTINGS_KEY = "settings";
 
 export default function FavouriteRestaurant({ navigation }) {
   const [isRatingEnabled, setIsRatingEnabled] = useState(false);
+  const [search, setSearch] = useState();
   const [restaurants, setRestaurants] = useState([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
 
   useEffect(() => {
     fetchSettings();
@@ -42,21 +43,39 @@ export default function FavouriteRestaurant({ navigation }) {
         const restaurants = JSON.parse(storedRestaurants)
         const favRestaurants = restaurants.filter(restaurant => restaurant.favorite === true)
         setRestaurants(favRestaurants);
+        setFilteredRestaurants(favRestaurants)
       }
     } catch (error) {
       console.error("Failed to load restaurants from AsyncStorage", error);
     }
   };
+
+  const filterRestaurants = () => {
+    if(search && search.length > 0){
+      const filtered = restaurants.filter(restaurant => 
+        restaurant.name.toLowerCase().includes(search.toLowerCase()) || 
+        restaurant.tags.find(tag => tag.toLowerCase().includes(search.toLowerCase()))
+      )
+      setFilteredRestaurants(filtered)
+    } else {
+      setFilteredRestaurants(restaurants)
+    }
+  }
   
-  // Currently displays restaurants ordered by rating
   return (
     <View style={styles.container}>
       <Text style={styles.h1}>Favorite Restaurants</Text>
-      <SearchBar 
-        inputType="text"
-      />
+      <View style={styles.inputContainer}>
+          <Text style={styles.label}>Search</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Filter by name or tags..."
+            value={search}
+            onChangeText={input => {setSearch(input); filterRestaurants(); }}
+          />
+      </View>
       <FlatList
-        data={restaurants}
+        data={filteredRestaurants}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => 
           <RestaurantCard 
@@ -79,5 +98,21 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 20,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  input: {
+    flex: 2,
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    paddingHorizontal: 10,
+  },
+  label: {
+    flex: 1,
+    fontSize: 16,
   },
 });
