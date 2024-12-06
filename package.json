@@ -19,7 +19,6 @@
     "groupassignmentcomp3074": "file:",
     "react": "18.3.1",
     "react-native": "0.76.3",
-    "react-native-dotenv": "^3.4.11",
     "react-native-geocoding": "^0.5.0",
     "react-native-maps": "^1.20.1",
     "react-native-paper": "^5.12.5",

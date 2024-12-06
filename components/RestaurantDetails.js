@@ -13,10 +13,10 @@ import { RadioButton } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
 import Geocoder from "react-native-geocoding";
-import { GOOGLE_MAPS_API_KEY } from "@env";
 
 const SETTINGS_KEY = "settings";
 const DEFAULT_IMAGE = require("../assets/restaurant.jpg");
+const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 Geocoder.init(GOOGLE_MAPS_API_KEY);
 
