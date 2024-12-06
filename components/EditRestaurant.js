@@ -63,9 +63,9 @@ export default function EditRestaurant({ route, navigation }) {
         ? JSON.parse(storedRestaurants)
         : [];
 
-      // Update the restaurant in the list
+      // Update the restaurant in the list by matching its id
       const updatedRestaurants = restaurants.map((r) =>
-        r.name === restaurant.name ? updatedRestaurant : r
+        r.id === restaurant.id ? updatedRestaurant : r
       );
 
       // Save the updated list back to AsyncStorage

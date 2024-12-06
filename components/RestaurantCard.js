@@ -19,7 +19,7 @@ export default function RestaurantCard({
         if (storedRestaurants) {
           const restaurants = JSON.parse(storedRestaurants);
           const updatedRestaurant = restaurants.find(
-            (r) => r.name === restaurant.name
+            (r) => r.id === restaurant.id // Use `id` for consistency
           );
           if (updatedRestaurant) {
             setCurrentRestaurant(updatedRestaurant);

@@ -51,7 +51,7 @@ export default function RestaurantDetails({ route, navigation }) {
           if (storedRestaurants) {
             const restaurants = JSON.parse(storedRestaurants);
             const updatedRestaurant = restaurants.find(
-              (r) => r.name === restaurant.name
+              (r) => r.id === restaurant.id
             );
             if (updatedRestaurant) {
               setCurrentRestaurant(updatedRestaurant); // Update the current restaurant state
@@ -76,7 +76,7 @@ export default function RestaurantDetails({ route, navigation }) {
       };
 
       loadRestaurant();
-    }, [restaurant.name])
+    }, [restaurant.id])
   );
 
   const renderRating = () => { // Render the restaurant rating
@@ -108,7 +108,7 @@ export default function RestaurantDetails({ route, navigation }) {
         ? JSON.parse(storedRestaurants)
         : [];
       const updatedRestaurants = restaurants.map((r) =>
-        r.name === restaurant.name ? updatedRestaurant : r
+        r.id === restaurant.id ? updatedRestaurant : r
       );
       await AsyncStorage.setItem(
         "restaurants",
@@ -144,7 +144,7 @@ export default function RestaurantDetails({ route, navigation }) {
                 ? JSON.parse(storedRestaurants)
                 : [];
               const updatedRestaurants = restaurants.filter(
-                (r) => r.name !== restaurant.name
+                (r) => r.id !== restaurant.id
               );
               await AsyncStorage.setItem(
                 "restaurants",

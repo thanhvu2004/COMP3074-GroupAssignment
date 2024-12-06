@@ -13,7 +13,6 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function AddRestaurant({ route, navigation }) {
-  const { addRestaurant } = route.params; // Destructure addRestaurant function from route params
   const [restaurantName, setRestaurantName] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
@@ -23,7 +22,6 @@ export default function AddRestaurant({ route, navigation }) {
   const [phones, setPhones] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState("");
-  const [image, setImage] = useState(null);
 
   const handleAddRestaurant = async () => {
     if (
@@ -39,50 +37,44 @@ export default function AddRestaurant({ route, navigation }) {
       return;
     }
 
-    // Create a new restaurant object
-    const newRestaurant = {
-      name: restaurantName,
-      address: {
-        street: address,
-        city,
-        state,
-        zip,
-        country,
-      },
-      phones: phones.split(",").map((phone) => phone.trim()), // Split and trim phone numbers
-      description,
-      tags: tags.split(",").map((tag) => tag.trim()), // Split and trim tags
-      image: image ? image.uri : null,
-      rating: "", // Set rating to blank when first created
-    };
-
     try {
+      // Retrieve the last used ID from AsyncStorage
+      const lastId = await AsyncStorage.getItem("lastRestaurantId");
+      const newId = lastId ? parseInt(lastId) + 1 : 1;
+
+      // Create a new restaurant object with the new ID
+      const newRestaurant = {
+        id: newId, // Assign the new ID
+        name: restaurantName,
+        address: {
+          street: address,
+          city,
+          state,
+          zip,
+          country,
+        },
+        phones: phones.split(",").map((phone) => phone.trim()), // Split and trim phone numbers
+        description,
+        tags: tags.split(",").map((tag) => tag.trim()), // Split and trim tags
+        image: null,
+        rating: "", // Set rating to blank when first created
+        favourite: false, // Set favourite to false when first created
+      };
+
       // Retrieve existing restaurants from AsyncStorage
       const existingRestaurants = await AsyncStorage.getItem("restaurants");
+      
       const restaurants = existingRestaurants
         ? JSON.parse(existingRestaurants)
         : [];
 
       // Add the new restaurant to the list
       restaurants.push(newRestaurant);
-
+      console.log("existingRestaurants", restaurants);
       // Save the updated list back to AsyncStorage
       await AsyncStorage.setItem("restaurants", JSON.stringify(restaurants));
 
-      // Pass new restaurant to parent component using addRestaurant function
-      addRestaurant(newRestaurant);
-
-      // Reset form fields
-      setRestaurantName("");
-      setAddress("");
-      setCity("");
-      setState("");
-      setZip("");
-      setCountry("");
-      setPhones("");
-      setDescription("");
-      setTags("");
-      setImage(null);
+      await AsyncStorage.setItem("lastRestaurantId", newId.toString()); // Save the new ID
 
       // Navigate back to the restaurant list
       navigation.goBack();

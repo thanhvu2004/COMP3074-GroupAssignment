@@ -62,7 +62,7 @@ export default function HomeScreen() {
       <Text style={styles.h1}>Recent Restaurants</Text>
       <FlatList
         data={restaurants}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.id.toString()} // Use `id` as the unique key
         renderItem={({ item }) => (
           <RestaurantCard
             restaurant={item}
