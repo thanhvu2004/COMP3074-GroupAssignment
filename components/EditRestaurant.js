@@ -56,6 +56,7 @@ export default function EditRestaurant({ route, navigation }) {
       description,
       tags: tags.split(",").map((tag) => tag.trim()), // Split and trim tags
       image,
+      favorite
     };
 
     try {
