@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
+  Switch
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RadioButton } from "react-native-paper";
@@ -25,6 +26,7 @@ export default function RestaurantDetails({ route, navigation }) {
   const [isRatingEnabled, setIsRatingEnabled] = useState(false);
   const [selectedRating, setSelectedRating] = useState(restaurant.rating || "");
   const [currentRestaurant, setCurrentRestaurant] = useState(restaurant);
+  const [favorite, setFavorite] = useState(restaurant.favorite);
   const [region, setRegion] = useState(null);
 
   useEffect(() => { // Load the settings from AsyncStorage once the component mounts
@@ -101,7 +103,19 @@ export default function RestaurantDetails({ route, navigation }) {
     const updatedRestaurant = { ...currentRestaurant, rating: newRating };
     setCurrentRestaurant(updatedRestaurant);
 
-    // Update the restaurant rating in AsyncStorage
+    // Update the restaurant in AsyncStorage
+    updateRestaurant(updatedRestaurant)
+  };
+
+  const handleFavoriteChange = async (isFav) => { // Handle the favorite change
+    const updatedRestaurant = { ...currentRestaurant, favorite: isFav };
+    setCurrentRestaurant(updatedRestaurant);
+
+    // Update the restaurant in AsyncStorage
+    updateRestaurant(updatedRestaurant)
+  };
+
+  const updateRestaurant = async(updatedRestaurant) => {
     try {
       const storedRestaurants = await AsyncStorage.getItem("restaurants");
       const restaurants = storedRestaurants
@@ -115,9 +129,9 @@ export default function RestaurantDetails({ route, navigation }) {
         JSON.stringify(updatedRestaurants)
       );
     } catch (error) {
-      console.error("Error updating rating:", error);
+      console.error("Error updating restaurant: ", error);
     }
-  };
+  }
 
   const handleEditRestaurant = () => { // Navigate to the EditRestaurant screen
     navigation.navigate("EditRestaurant", { restaurant: currentRestaurant });
@@ -242,6 +256,15 @@ export default function RestaurantDetails({ route, navigation }) {
           ))}
         </View>
       </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Favorite:</Text>
+        <Switch
+          style={styles.input}
+          isOn={favorite}
+          value={favorite}
+          onValueChange={(v) => {setFavorite(v); handleFavoriteChange(v);}}
+        />
+      </View>
       <TouchableOpacity style={styles.button} onPress={handleEditRestaurant}>
         <Text style={styles.buttonText}>Edit Restaurant</Text>
       </TouchableOpacity>
@@ -330,5 +353,21 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontSize: 16,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  label: {
+    flex: 1,
+    fontSize: 16,
+  },
+  input: {
+    flex: 2,
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    paddingHorizontal: 10,
   },
 });
