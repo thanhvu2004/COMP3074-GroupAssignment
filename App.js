@@ -13,6 +13,7 @@ import About from "./components/About";
 import RestaurantDetails from "./components/RestaurantDetails";
 import EditRestaurant from "./components/EditRestaurant";
 import FullscreenMap  from "./components/FullscreenMap";
+import DirectionsMap from "./components/DirectionsMap";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -69,6 +70,11 @@ export default function App() {
           name="FullscreenMap"
           component={FullscreenMap}
           options={{ title: "Map" }}
+        />
+        <Stack.Screen
+          name="DirectionsMap"
+          component={DirectionsMap}
+          options={{ title: "Directions" }}
         />
       </Stack.Navigator>
     </NavigationContainer>

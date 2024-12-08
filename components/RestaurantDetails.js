@@ -181,6 +181,13 @@ export default function RestaurantDetails({ route, navigation }) {
     });
   };
 
+  const handleGetDirections = () => {
+    navigation.navigate("DirectionsMap", {
+      region,
+      restaurant: currentRestaurant,
+    });
+  }
+
   const formatPhoneNumber = (phoneNumber) => {
     const cleaned = ("" + phoneNumber).replace(/\D/g, "");
     const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
@@ -236,6 +243,12 @@ export default function RestaurantDetails({ route, navigation }) {
             onPress={handleViewFullscreenMap}
           >
             <Text style={styles.buttonText}>View Fullscreen Map</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.fullscreenButton}
+            onPress={handleGetDirections}
+          >
+            <Text style={styles.buttonText}>Get Directions</Text>
           </TouchableOpacity>
         </View>
       )}
