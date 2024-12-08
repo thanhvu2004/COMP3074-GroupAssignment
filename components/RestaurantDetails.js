@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
-  Switch
+  Switch,
+  Linking,
+  Platform
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RadioButton } from "react-native-paper";
@@ -181,6 +183,20 @@ export default function RestaurantDetails({ route, navigation }) {
     });
   };
 
+  const handleGetDirections = () => {
+    const scheme = Platform.select({
+      ios: `maps://?q=${restaurant.name}&ll=${region.latitude},${region.longitude}`,
+      android: `google.navigation:q=${region.latitude},${region.longitude}`,
+    });
+    Linking.openURL(scheme).catch(err =>
+      console.error('Error opening map: ', err),
+    );
+    // navigation.navigate("DirectionsMap", {
+    //   region,
+    //   restaurant: currentRestaurant,
+    // });
+  }
+
   const formatPhoneNumber = (phoneNumber) => {
     const cleaned = ("" + phoneNumber).replace(/\D/g, "");
     const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
@@ -236,6 +252,12 @@ export default function RestaurantDetails({ route, navigation }) {
             onPress={handleViewFullscreenMap}
           >
             <Text style={styles.buttonText}>View Fullscreen Map</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.fullscreenButton}
+            onPress={handleGetDirections}
+          >
+            <Text style={styles.buttonText}>Get Directions</Text>
           </TouchableOpacity>
         </View>
       )}
