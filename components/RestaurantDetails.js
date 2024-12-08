@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
-  Switch
+  Switch,
+  Linking
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RadioButton } from "react-native-paper";
@@ -182,10 +183,14 @@ export default function RestaurantDetails({ route, navigation }) {
   };
 
   const handleGetDirections = () => {
-    navigation.navigate("DirectionsMap", {
-      region,
-      restaurant: currentRestaurant,
-    });
+    const scheme = `geo:${region.latitude},${region.longitude}?q=${restaurant.name}`
+    Linking.openURL(scheme).catch(err =>
+      console.error('Error opening map: ', err),
+    );
+    // navigation.navigate("DirectionsMap", {
+    //   region,
+    //   restaurant: currentRestaurant,
+    // });
   }
 
   const formatPhoneNumber = (phoneNumber) => {

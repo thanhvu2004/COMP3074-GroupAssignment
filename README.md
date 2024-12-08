@@ -18,8 +18,7 @@ The following packages are required to run this project:
 - `react-native-screens`: ^4.3.0
 - `react-native-paper`
 - `react-native-maps react-native-geocoding`
-- `react-native-get-location`
-- `react-native-maps-directions`
+- `react-native-maps-directions` (temporarily unused)
 
 ## Scripts
 
