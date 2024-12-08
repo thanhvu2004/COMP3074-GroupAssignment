@@ -8,7 +8,8 @@ import {
   Alert,
   ScrollView,
   Switch,
-  Linking
+  Linking,
+  Platform
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RadioButton } from "react-native-paper";
