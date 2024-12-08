@@ -183,7 +183,10 @@ export default function RestaurantDetails({ route, navigation }) {
   };
 
   const handleGetDirections = () => {
-    const scheme = `google.navigation:q=${region.latitude},${region.longitude}`
+    const scheme = Platform.select({
+      ios: `maps://?q=${restaurant.name}&ll=${region.latitude},${region.longitude}`,
+      android: `google.navigation:q=${region.latitude},${region.longitude}`,
+    });
     Linking.openURL(scheme).catch(err =>
       console.error('Error opening map: ', err),
     );
