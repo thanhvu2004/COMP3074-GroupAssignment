@@ -9,7 +9,7 @@ import {
   ScrollView,
   Switch,
   Linking,
-  Platform
+  Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RadioButton } from "react-native-paper";
@@ -31,7 +31,8 @@ export default function RestaurantDetails({ route, navigation }) {
   const [favorite, setFavorite] = useState(restaurant.favorite);
   const [region, setRegion] = useState(null);
 
-  useEffect(() => { // Load the settings from AsyncStorage once the component mounts
+  useEffect(() => {
+   
     const loadSettings = async () => {
       try {
         const settings = await AsyncStorage.getItem(SETTINGS_KEY);
@@ -47,7 +48,7 @@ export default function RestaurantDetails({ route, navigation }) {
     loadSettings();
   }, []);
 
-  useFocusEffect( // Load the restaurant details from AsyncStorage when the screen is focused
+  useFocusEffect(
     React.useCallback(() => {
       const loadRestaurant = async () => {
         try {
@@ -58,10 +59,10 @@ export default function RestaurantDetails({ route, navigation }) {
               (r) => r.id === restaurant.id
             );
             if (updatedRestaurant) {
-              setCurrentRestaurant(updatedRestaurant); // Update the current restaurant state
-              setSelectedRating(updatedRestaurant.rating); // Update the selected rating state
+              setCurrentRestaurant(updatedRestaurant);
+              setSelectedRating(updatedRestaurant.rating);
               const fullAddress = `${updatedRestaurant.address.street}, ${updatedRestaurant.address.city}, ${updatedRestaurant.address.state}, ${updatedRestaurant.address.zip}, ${updatedRestaurant.address.country}`;
-              Geocoder.from(fullAddress) // Get the latitude and longitude of the restaurant based on its address
+              Geocoder.from(fullAddress)
                 .then((json) => {
                   const location = json.results[0].geometry.location;
                   setRegion({
@@ -83,7 +84,7 @@ export default function RestaurantDetails({ route, navigation }) {
     }, [restaurant.id])
   );
 
-  const renderRating = () => { // Render the restaurant rating
+  const renderRating = () => {
     if (currentRestaurant.rating === "") {
       return (
         <Text style={styles.rating}>
@@ -100,24 +101,20 @@ export default function RestaurantDetails({ route, navigation }) {
     }
   };
 
-  const handleRatingChange = async (newRating) => { // Handle the rating change
+  const handleRatingChange = async (newRating) => {
     setSelectedRating(newRating);
     const updatedRestaurant = { ...currentRestaurant, rating: newRating };
     setCurrentRestaurant(updatedRestaurant);
-
-    // Update the restaurant in AsyncStorage
-    updateRestaurant(updatedRestaurant)
+    updateRestaurant(updatedRestaurant);
   };
 
-  const handleFavoriteChange = async (isFav) => { // Handle the favorite change
+  const handleFavoriteChange = async (isFav) => {
     const updatedRestaurant = { ...currentRestaurant, favorite: isFav };
     setCurrentRestaurant(updatedRestaurant);
-
-    // Update the restaurant in AsyncStorage
-    updateRestaurant(updatedRestaurant)
+    updateRestaurant(updatedRestaurant);
   };
 
-  const updateRestaurant = async(updatedRestaurant) => {
+  const updateRestaurant = async (updatedRestaurant) => {
     try {
       const storedRestaurants = await AsyncStorage.getItem("restaurants");
       const restaurants = storedRestaurants
@@ -133,13 +130,35 @@ export default function RestaurantDetails({ route, navigation }) {
     } catch (error) {
       console.error("Error updating restaurant: ", error);
     }
-  }
+  };
 
-  const handleEditRestaurant = () => { // Navigate to the EditRestaurant screen
+  const handleShare = () => {
+    Linking.openURL(
+      `mailto:?subject=Check out this restaurant&body=Check out the details of this restaurant at ${currentRestaurant.name}.`
+    ).then(() => {
+      navigation.goBack(); 
+    });
+  };
+
+  const handleFacebookShare = () => {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=https://maps.google.com/?q=${currentRestaurant.geometry.location.lat},${currentRestaurant.geometry.location.lng}`;
+    Linking.openURL(url).then(() => {
+      navigation.goBack(); 
+    }).catch(err => console.error('Error opening Facebook share:', err));
+  };
+
+  const handleTwitterShare = () => {
+    const url = `https://twitter.com/intent/tweet?text=Check out ${currentRestaurant.name} at ${currentRestaurant.formatted_address}!`;
+    Linking.openURL(url).then(() => {
+      navigation.goBack(); 
+    }).catch(err => console.error('Error opening Twitter share:', err));
+  };
+
+  const handleEditRestaurant = () => {
     navigation.navigate("EditRestaurant", { restaurant: currentRestaurant });
   };
 
-  const handleDeleteRestaurant = async () => { // Delete the restaurant
+  const handleDeleteRestaurant = async () => {
     Alert.alert(
       "Delete Restaurant",
       "Are you sure you want to delete this restaurant?",
@@ -185,17 +204,13 @@ export default function RestaurantDetails({ route, navigation }) {
 
   const handleGetDirections = () => {
     const scheme = Platform.select({
-      ios: `maps://?q=${restaurant.name}&ll=${region.latitude},${region.longitude}`,
+      ios: `maps://?q=${currentRestaurant.name}&ll=${region.latitude},${region.longitude}`,
       android: `google.navigation:q=${region.latitude},${region.longitude}`,
     });
     Linking.openURL(scheme).catch(err =>
       console.error('Error opening map: ', err),
     );
-    // navigation.navigate("DirectionsMap", {
-    //   region,
-    //   restaurant: currentRestaurant,
-    // });
-  }
+  };
 
   const formatPhoneNumber = (phoneNumber) => {
     const cleaned = ("" + phoneNumber).replace(/\D/g, "");
@@ -235,8 +250,7 @@ export default function RestaurantDetails({ route, navigation }) {
       </Text>
       {renderRating()}
       {region && (
-        // Render the map if the region is available
-        <View> 
+        <View>
           <MapView style={styles.map} region={region}>
             <Marker
               coordinate={{
@@ -284,7 +298,10 @@ export default function RestaurantDetails({ route, navigation }) {
           style={styles.input}
           isOn={favorite}
           value={favorite}
-          onValueChange={(v) => {setFavorite(v); handleFavoriteChange(v);}}
+          onValueChange={(v) => {
+            setFavorite(v);
+            handleFavoriteChange(v);
+          }}
         />
       </View>
       <TouchableOpacity style={styles.button} onPress={handleEditRestaurant}>
@@ -296,100 +313,12 @@ export default function RestaurantDetails({ route, navigation }) {
       >
         <Text style={styles.buttonText}>Delete Restaurant</Text>
       </TouchableOpacity>
+      <Button title="Share via Email" onPress={handleShare} />
+      <Button title="Share via Facebook" onPress={handleFacebookShare} />
+      <Button title="Share via Twitter" onPress={handleTwitterShare} />
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    margin: 10,
-  },
-  name: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  paragraph_text: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  subtle_text: {
-    fontSize: 14,
-    color: "gray",
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  image: {
-    width: "100%",
-    height: 200,
-    marginBottom: 20,
-  },
-  rating: {
-    fontSize: 16,
-    color: "gold",
-  },
-  map: {
-    width: "100%",
-    height: 200,
-    marginBottom: 20,
-  },
-  fullscreenButton: {
-    backgroundColor: "blue",
-    padding: 10,
-    alignItems: "center",
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  ratingContainer: {
-    marginTop: 20,
-  },
-  ratingLabel: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  radioGroup: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  radioItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 5,
-    padding: 5,
-  },
-  button: {
-    marginTop: 20,
-    backgroundColor: "blue",
-    padding: 10,
-    alignItems: "center",
-    borderRadius: 5,
-  },
-  deleteButton: {
-    backgroundColor: "red",
-    marginTop: 10,
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  label: {
-    flex: 1,
-    fontSize: 16,
-  },
-  input: {
-    flex: 2,
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-  },
+
 });
